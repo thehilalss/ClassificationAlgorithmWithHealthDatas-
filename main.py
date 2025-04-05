@@ -61,6 +61,7 @@ preprocessor = ColumnTransformer(
 # Eğitim/test bölmesi
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, stratify=y, random_state=42)
 
+
 # Ön işleme adımlarını eğitim ve test verisine uygula
 X_train_processed = preprocessor.fit_transform(X_train)
 X_test_processed = preprocessor.transform(X_test)
@@ -69,6 +70,10 @@ X_test_processed = preprocessor.transform(X_test)
 smote = SMOTE(random_state=42)
 X_train_res, y_train_res = smote.fit_resample(X_train_processed, y_train)
 print("\nSMOTE Sonrası Sınıf Dağılımı:", Counter(y_train_res))
+
+print("Eğitim Seti Sınıfları:", np.unique(y_train))
+print("Test Seti Sınıfları:", np.unique(y_test))
+print("LabelEncoder Sınıfları:", le.classes_)
 
 # Modellerin tanımı ve hiperparametre gridleri
 model_configs = [
@@ -116,10 +121,15 @@ for config in model_configs:
     y_prob = gs.predict_proba(X_test_processed)
 
     print(f"\n{config['name']} - En İyi Parametreler: {gs.best_params_}")
-    print(classification_report(y_test, y_pred, target_names=le.classes_))
 
-    cm = confusion_matrix(y_test, y_pred)
-    disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=le.classes_)
+    predicted_classes = np.unique(y_pred)
+    report_target_names = [str(label) for label in le.inverse_transform(predicted_classes)]  # Açıkça string'e dönüştür
+
+    print(classification_report(y_test, y_pred, target_names=report_target_names, labels=predicted_classes,
+                                zero_division=0))
+
+    cm = confusion_matrix(y_test, y_pred, labels=predicted_classes)
+    disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=report_target_names)
     disp.plot(cmap=plt.cm.Blues)
     plt.title(f'{config["name"]} Karmaşıklık Matrisi')
     plt.show()
