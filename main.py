@@ -18,7 +18,7 @@ from sklearn.preprocessing import OneHotEncoder, StandardScaler, LabelEncoder
 from sklearn.svm import SVC
 from sklearn.tree import DecisionTreeClassifier
 
-# Veri setini oku
+# Veri setini okuyorum
 df = pd.read_csv('Sleep_health_and_lifestyle_dataset.csv')
 print("\nİlk 5 Satır:\n", df.head())
 print("\nVeri Seti Boyutu:", df.shape)
@@ -33,19 +33,19 @@ sns.countplot(data=df, x='Sleep Disorder')
 plt.title('Uyku Bozukluğu Sınıf Dağılımı')
 plt.show()
 
-# Hedef değişkeni kodlayalım (TÜM VERİ ÜZERİNDE FIT EDİLİYOR)
+# Hedef değişkeni kodluyorum (tüm veri üzerinde fit ediyorum)
 le = LabelEncoder()
 df['Sleep Disorder Encoded'] = le.fit_transform(df['Sleep Disorder'])
 
-# Özellikleri ve hedefi ayır
+# Özellikleri ve hedefi ayırdım
 X = df.drop(columns=['Sleep Disorder', 'Sleep Disorder Encoded'])
 y = df['Sleep Disorder Encoded']
 
-# Kategorik ve sayısal sütunları belirle
+# Kategorik ve sayısal sütunları belirledim
 categorical_cols = X.select_dtypes(include='object').columns.tolist()
 numerical_cols = X.select_dtypes(include=np.number).columns.tolist()
 
-# Ön işleme adımları
+# Ön işleme adımlarıni yapıyorum
 preprocessor = ColumnTransformer(
     transformers=[
         ('num', Pipeline([
@@ -58,15 +58,14 @@ preprocessor = ColumnTransformer(
         ]), categorical_cols)
     ])
 
-# Eğitim/test bölmesi
+# Eğitim/test bölmesi veri setimin %30 u test verisi
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, stratify=y, random_state=42)
 
-
-# Ön işleme adımlarını eğitim ve test verisine uygula
+# Ön işleme adımlarını eğitim ve test verisine uyguluyoruz
 X_train_processed = preprocessor.fit_transform(X_train)
 X_test_processed = preprocessor.transform(X_test)
 
-# SMOTE ile dengesizlik giderme
+# SMOTE ile dengesizlik giderme işlemini yapıyoruz
 smote = SMOTE(random_state=42)
 X_train_res, y_train_res = smote.fit_resample(X_train_processed, y_train)
 print("\nSMOTE Sonrası Sınıf Dağılımı:", Counter(y_train_res))
@@ -143,7 +142,7 @@ for config in model_configs:
         'ROC-AUC (OVO Macro)': roc_auc_score(y_test, y_prob, multi_class='ovo', average='macro')
     })
 
-# Sonuçları görselleştir
+# Sonuçları görselleştiriyoruz
 results_df = pd.DataFrame(results)
 results_df_sorted = results_df.sort_values(by='F1-Score (Macro)', ascending=False)
 print("\nModel Performans Özeti:\n", results_df_sorted)
